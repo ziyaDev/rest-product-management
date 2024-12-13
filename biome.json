@@ -1,0 +1,36 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.8.2/schema.json",
+  "extends": ["ultracite"],
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noExplicitAny": "warn"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
+      "style": {
+        "noNamespaceImport": "info",
+        "useNamingConvention": "off",
+        "useImportType": {
+          "level": "off",
+          "fix": "none"
+        },
+        "noParameterProperties": {
+          "level": "off"
+        }
+      },
+      "complexity": {
+        "noStaticOnlyClass": { "level": "off" }
+      },
+      "correctness": {
+        "noNodejsModules": "off"
+      }
+    },
+    "javascript": {
+      "parser": {
+        "unsafeParameterDecoratorsEnabled": true
+      }
+    }
+  }
+}
