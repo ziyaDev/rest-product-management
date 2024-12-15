@@ -26,8 +26,3 @@ UserSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-// exclude password from toJSON fn
-UserSchema.methods.toJSON = function () {
-  const { password, ...rest } = this.toObject();
-  return rest;
-};

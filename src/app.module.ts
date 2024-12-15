@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { envSchema } from './env';
 import { EnvModule } from './env/env.module';
 import { EnvService } from './env/env.service';
+import { HttpExceptionFilter } from './http-exeption.filter';
+import { ProductModule } from './product/product.module';
 import { MongooseSharedModule } from './schemas/mongoose.module';
 import { UserModule } from './user/user.module';
 @Module({
@@ -34,13 +36,14 @@ import { UserModule } from './user/user.module';
     MongooseModule.forRootAsync({
       useFactory: async (envService: EnvService) => ({
         uri: envService.get('MONGO_DB_URL'),
-        dbName: 'rest-pm',
+        dbName: 'rest-p0m',
       }),
       imports: [EnvModule],
       inject: [EnvService],
     }),
     UserModule,
     MongooseSharedModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [
@@ -48,6 +51,11 @@ import { UserModule } from './user/user.module';
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
+    },
+    { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
     },
   ],
 })
