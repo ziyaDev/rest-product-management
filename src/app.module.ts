@@ -13,6 +13,7 @@ import { HttpExceptionFilter } from './http-exeption.filter';
 import { ProductModule } from './product/product.module';
 import { MongooseSharedModule } from './schemas/mongoose.module';
 import { UserModule } from './user/user.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -42,6 +43,7 @@ import { UserModule } from './user/user.module';
       inject: [EnvService],
     }),
     UserModule,
+
     MongooseSharedModule,
     ProductModule,
   ],
