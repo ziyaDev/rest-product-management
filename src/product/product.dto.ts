@@ -1,6 +1,12 @@
 import { createZodDto, ZodValidationException } from 'nestjs-zod';
 import { z, ZodError } from 'zod';
 import { ProductSchemaEntity } from './product.entity';
+import {
+  CreateDateFilterTypeSchema,
+  CreateFilterSchema,
+  CreateNumberFilterTypeSchema,
+  CreateStringFilterTypeSchema,
+} from 'src/filter/filter.dto';
 
 export const CreateProductSchema = z
   .object({
@@ -58,6 +64,25 @@ export const CreateProductSchema = z
       }, new Map<string, string[]>());
     }
   });
+
+  export const UpdateProductSchema = ProductSchemaEntity.partial();
+
+export const FilterProductSchema = z
+  .object({
+    title: CreateStringFilterTypeSchema(ProductSchemaEntity.shape.title),
+    description: CreateStringFilterTypeSchema(
+      ProductSchemaEntity.shape.description
+    ),
+    category: CreateStringFilterTypeSchema(ProductSchemaEntity.shape.category),
+    price: CreateNumberFilterTypeSchema(ProductSchemaEntity.shape.price),
+    quantity: CreateNumberFilterTypeSchema(ProductSchemaEntity.shape.quantity),
+    createdAt: CreateDateFilterTypeSchema(ProductSchemaEntity.shape.createdAt),
+    updatedAt: CreateDateFilterTypeSchema(ProductSchemaEntity.shape.updatedAt),
+  })
+  .partial();
+
+export class FilterProductDto extends createZodDto(
+  CreateFilterSchema(FilterProductSchema)
+) {}
 export class CreateProductDto extends createZodDto(CreateProductSchema) {}
-export const UpdateProductSchema = ProductSchemaEntity.partial();
 export class UpdateProductDto extends createZodDto(UpdateProductSchema) {}

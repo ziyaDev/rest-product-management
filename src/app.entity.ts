@@ -15,3 +15,16 @@ export const CreateZodApiDtoSchema = <T extends ZodTypeAny>(schema: T) => {
     })
   );
 };
+export const CreateZodApiDtoWithPagination = <T extends ZodTypeAny>(
+  schema: T
+) => {
+  return z.object({
+    data: schema,
+    pagination: z.object({
+      totalCount: z.number(),
+      pageSize: z.number(),
+      totalPages: z.number(),
+      hasNextPage: z.number(),
+    }),
+  });
+};

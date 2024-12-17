@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  Get,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,8 +10,14 @@ import { Model } from 'mongoose';
 import { Product } from 'src/schemas/product.schema';
 import { User } from 'src/schemas/user.schema';
 import { z } from 'zod';
-import { CreateProductSchema, UpdateProductSchema } from './product.dto';
+import {
+  CreateProductSchema,
+  FilterProductDto,
+  FilterProductSchema,
+  UpdateProductSchema,
+} from './product.dto';
 import { ProductSchemaEntity } from './product.entity';
+import { WithPagination } from 'src/filter/filter.interface';
 
 @Injectable()
 export class ProductService {
@@ -42,9 +50,8 @@ export class ProductService {
         ...productDto,
         owner: userId,
       });
-
       await product.save();
-      product.populate('owner');
+      await product.populate('owner');
       return product.toObject();
     } catch (error) {
       throw new Error(`Failed to create product: ${error.message}`);
@@ -71,12 +78,13 @@ export class ProductService {
     try {
       Object.assign(product, productDto);
       await product.save();
+      await product.populate('owner');
       return product.toObject();
     } catch (error) {
       throw new Error(`Failed to update product: ${error.message}`);
     }
   }
-  async delete(userId: string, productId: string): Promise<null> {
+  async delete(userId: string, productId: string): Promise<string> {
     const user = await this.userModel.findOne({ _id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -94,9 +102,41 @@ export class ProductService {
 
     try {
       await product.deleteOne();
-      return null;
+      return productId;
     } catch (error) {
-      throw new Error(`Failed to delete product: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to delete product: ${error.message}`
+      );
+    }
+  }
+  async findAll(
+    filter: FilterProductDto
+  ): Promise<WithPagination<z.infer<typeof ProductSchemaEntity>[]>> {
+    const { limit = 10, page = 0, ...rest } = filter;
+    try {
+      const [data, total] = await Promise.all([
+        this.productModel
+          .find(rest)
+          .populate('owner')
+          .skip(page * limit)
+          .limit(limit + 1),
+        this.productModel.countDocuments(rest),
+      ]);
+
+      const hasNextPage = data.length > limit;
+      const items = hasNextPage ? data.slice(0, -1) : data;
+
+      return {
+        data: items,
+        pagination: {
+          totalCount: total,
+          totalPages: Math.ceil(total / limit),
+          pageSize: limit,
+          hasNextPage,
+        },
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
     }
   }
 }

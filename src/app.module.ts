@@ -10,12 +10,10 @@ import { envSchema } from './env';
 import { EnvModule } from './env/env.module';
 import { EnvService } from './env/env.service';
 import { HttpExceptionFilter } from './http-exeption.filter';
-import { ProductModule } from './product/product.module';
 import { MongooseSharedModule } from './schemas/mongoose.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PurchaseModule } from './purchase/purchase.module';
-import { FilterModule } from './filter/filter.module';
 import { ProductModule } from './product/product.module';
 
 @Module({
@@ -52,7 +50,6 @@ import { ProductModule } from './product/product.module';
     ProductModule,
     AuthModule,
     PurchaseModule,
-    FilterModule,
   ],
   controllers: [AppController],
   providers: [
