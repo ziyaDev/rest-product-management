@@ -20,9 +20,7 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', async function (next) {
-  this.userName = this.userName.toLowerCase();
   if (!this.isModified('password')) next(); // skip if no password is modified
-
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });

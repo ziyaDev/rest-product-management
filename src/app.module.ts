@@ -13,6 +13,10 @@ import { HttpExceptionFilter } from './http-exeption.filter';
 import { ProductModule } from './product/product.module';
 import { MongooseSharedModule } from './schemas/mongoose.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { PurchaseModule } from './purchase/purchase.module';
+import { FilterModule } from './filter/filter.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -46,6 +50,9 @@ import { UserModule } from './user/user.module';
 
     MongooseSharedModule,
     ProductModule,
+    AuthModule,
+    PurchaseModule,
+    FilterModule,
   ],
   controllers: [AppController],
   providers: [

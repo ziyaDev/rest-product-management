@@ -1,42 +1,31 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Put,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
-import { CreateZodApiDtoSchema, PostApiResponseSchema } from 'src/app.entity';
+import { RequestWithUser } from 'src/types/request';
 import { z } from 'zod';
-import { RegisterUserDto, UpdateUserDto } from './user.dto';
-import { UserLoginSchemaEntity, UserSchemaEntity } from './user.entity';
+import { UserSchemaEntity } from './user.entity';
+import { AuthGuard } from './user.guard';
 import { UserService } from './user.service';
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @Post('register')
-  @ZodSerializerDto(CreateZodApiDtoSchema(UserSchemaEntity))
-  async registerUser(
-    @Body() registerUserDto: RegisterUserDto
-  ): Promise<PostApiResponseSchema<z.infer<typeof UserSchemaEntity>>> {
-    return {
-      data: await this.userService.register(registerUserDto),
-      message: 'Registered',
-    };
-  }
-  @Post('login')
-  @ZodSerializerDto(CreateZodApiDtoSchema(UserSchemaEntity))
-  async loginUser(
-    @Body() loginUserDto: RegisterUserDto
-  ): Promise<PostApiResponseSchema<z.infer<typeof UserLoginSchemaEntity>>> {
-    return {
-      data: await this.userService.login(loginUserDto),
-      message: 'Login Success',
-    };
-  }
-  @Post(':userName/update')
-  @ZodSerializerDto(CreateZodApiDtoSchema(UserSchemaEntity))
+
+  @UseGuards(AuthGuard)
+  @Put(':userName')
+  @ZodSerializerDto(UserSchemaEntity)
   async updateUser(
     @Param() params: { userName: string },
-    @Body() updateUserDto: UpdateUserDto
-  ): Promise<PostApiResponseSchema<z.infer<typeof UserSchemaEntity>>> {
-    return {
-      message: 'Update Success',
-      data: await this.userService.update(params.userName, updateUserDto),
-    };
+    @Req() req: RequestWithUser
+  ): Promise<z.infer<typeof UserSchemaEntity>> {
+    if (req.user.userName !== params.userName) {
+      throw new UnauthorizedException();
+    }
+    return await this.userService.find(params.userName);
   }
 }
