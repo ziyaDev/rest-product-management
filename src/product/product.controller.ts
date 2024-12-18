@@ -8,29 +8,52 @@ import {
   Put,
   Query,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { ZodSerializerDto } from "nestjs-zod";
-import { CreateZodApiDtoSchema, PostApiResponseSchema } from "src/app.entity";
-import { AuthGuard } from "src/user/user.guard";
-import { ProductSchemaEntity, ProductSchemaEntityType } from "./product.entity";
-import { ProductService } from "./product.service";
-import { RequestWithUser } from "src/types/request";
+import { ZodSerializerDto } from 'nestjs-zod';
+import { CreateZodApiDtoSchema, PostApiResponseSchema } from 'src/app.entity';
+import { AuthGuard } from 'src/user/user.guard';
+import { ProductSchemaEntity, ProductSchemaEntityType } from './product.entity';
+import { ProductService } from './product.service';
+import { RequestWithUser } from 'src/types/request';
 import {
   CreateProductDto,
   FilterProductDto,
   UpdateProductDto,
 } from './product.dto';
 import { z } from 'zod';
+import { WithPagination } from 'src/filter/filter.interface';
+import { CreateWithPaginationSchema } from 'src/filter/filter.dto';
+import { Types } from 'mongoose';
 
-@Controller("products")
-@UseGuards(AuthGuard)
+@Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
+
   @Get()
-  async findAll(@Query() productFilter: FilterProductDto) {
+  @ZodSerializerDto(CreateWithPaginationSchema(z.array(ProductSchemaEntity)))
+  async findAll(
+    @Query() productFilter: FilterProductDto
+  ): Promise<WithPagination<ProductSchemaEntityType[]>> {
     return await this.productService.findAll(productFilter);
   }
+
+  @UseGuards(AuthGuard)
+  @Get(':userId')
+  @ZodSerializerDto(CreateWithPaginationSchema(z.array(ProductSchemaEntity)))
+  async findAllWithOwner(
+    @Query() productFilter: FilterProductDto,
+    @Param('userId') userId: string,
+    @Req() req: RequestWithUser
+  ): Promise<WithPagination<ProductSchemaEntityType[]>> {
+    if (userId !== req.user.userId) {
+      throw new UnauthorizedException();
+    }
+    return await this.productService.findAll(productFilter, userId);
+  }
+
+  @UseGuards(AuthGuard)
   @Post()
   @ZodSerializerDto(CreateZodApiDtoSchema(ProductSchemaEntity))
   async create(
@@ -42,10 +65,11 @@ export class ProductController {
       message: 'Product Created',
     };
   }
+  @UseGuards(AuthGuard)
   @Put(':productId')
   @ZodSerializerDto(CreateZodApiDtoSchema(ProductSchemaEntity))
   async update(
-    @Query() productId: string,
+    @Param('productId') productId: string,
     @Body() productDto: UpdateProductDto,
     @Req() req: RequestWithUser
   ): Promise<PostApiResponseSchema<ProductSchemaEntityType>> {
@@ -58,6 +82,7 @@ export class ProductController {
       message: 'Product Updated',
     };
   }
+  @UseGuards(AuthGuard)
   @Delete(':productId')
   @ZodSerializerDto(CreateZodApiDtoSchema(z.string()))
   async detele(

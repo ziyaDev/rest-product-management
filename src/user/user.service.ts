@@ -24,9 +24,7 @@ export class UserService {
     const user = await this.userModel.findOne({
       userName,
     });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+
     try {
       // Update the user document
       Object.assign(user, updateUserDto);
@@ -39,5 +37,12 @@ export class UserService {
   async find(userName: string): Promise<z.infer<typeof UserSchemaEntity>> {
     const user = await this.userModel.findOne({ userName });
     return user.toObject();
+  }
+  async validate(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }

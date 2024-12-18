@@ -65,7 +65,7 @@ export const CreateProductSchema = z
     }
   });
 
-  export const UpdateProductSchema = ProductSchemaEntity.partial();
+export const UpdateProductSchema = ProductSchemaEntity.partial();
 
 export const FilterProductSchema = z
   .object({

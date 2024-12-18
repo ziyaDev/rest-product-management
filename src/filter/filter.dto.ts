@@ -74,6 +74,19 @@ export const CreateArrayFilterTypeSchema = <T extends z.ZodArray<any>>(
 export const CreateFilterSchema = <T extends z.ZodObject<any>>(schema: T) => {
   return schema.merge(CreateOrAndPaginationFilterTypeSchema(schema));
 };
+export const CreateWithPaginationSchema = <T extends z.ZodTypeAny>(
+  schema: T
+) => {
+  return z.object({
+    data: schema,
+    pagination: z.object({
+      totalCount: z.number(),
+      pageSize: z.number(),
+      totalPages: z.number(),
+      hasNextPage: z.boolean(),
+    }),
+  });
+};
 
 // Example usage:
 // const nameFilterSchema = CreateStringFilterTypeSchema(z.string(), '$name');

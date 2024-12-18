@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -6,18 +7,21 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { envSchema } from './env';
 import { EnvModule } from './env/env.module';
 import { EnvService } from './env/env.service';
 import { HttpExceptionFilter } from './http-exeption.filter';
+import { ProductModule } from './product/product.module';
+import { PurchaseModule } from './purchase/purchase.module';
 import { MongooseSharedModule } from './schemas/mongoose.module';
 import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { PurchaseModule } from './purchase/purchase.module';
-import { ProductModule } from './product/product.module';
 
 @Module({
+
+
   imports: [
+      HttpModule,
     ConfigModule.forRoot({
       envFilePath: [
         process.env.NODE_ENV === 'development'
@@ -39,7 +43,7 @@ import { ProductModule } from './product/product.module';
     MongooseModule.forRootAsync({
       useFactory: async (envService: EnvService) => ({
         uri: envService.get('MONGO_DB_URL'),
-        dbName: 'rest-p0m',
+        dbName: 'rest-1',
       }),
       imports: [EnvModule],
       inject: [EnvService],

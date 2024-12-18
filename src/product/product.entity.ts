@@ -1,7 +1,7 @@
-import { Types } from "mongoose";
-import { Timestamps } from "src/types/timestamps";
+import { Types } from 'mongoose';
+import { Timestamps } from 'src/types/timestamps';
 import { UserSchemaEntity } from 'src/user/user.entity';
-import { z } from "zod";
+import { z } from 'zod';
 
 export const ProductSchemaEntity = z.object({
   title: z.string(),

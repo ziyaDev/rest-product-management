@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Product } from 'src/schemas/product.schema';
 import { User } from 'src/schemas/user.schema';
 import { z } from 'zod';
@@ -18,12 +18,14 @@ import {
 } from './product.dto';
 import { ProductSchemaEntity } from './product.entity';
 import { WithPagination } from 'src/filter/filter.interface';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
+    private userService: UserService
   ) {}
 
   async create(
@@ -62,11 +64,8 @@ export class ProductService {
     productId: string,
     productDto: z.infer<typeof UpdateProductSchema>
   ): Promise<z.infer<typeof ProductSchemaEntity>> {
-    const user = await this.userModel.findOne({ _id: userId });
-    // Find user and validate existence
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    await this.userService.validate(userId);
+
     // Find the product owned by the user
     const product = await this.productModel.findOne({
       _id: productId,
@@ -109,18 +108,32 @@ export class ProductService {
       );
     }
   }
+  async findOne(productId: Types.ObjectId) {
+    const product = await this.productModel.findOne({ _id: productId });
+    if (!product) return null;
+    await product.populate('owner');
+    return product;
+  }
   async findAll(
-    filter: FilterProductDto
+    filter: FilterProductDto,
+    userId?: string
   ): Promise<WithPagination<z.infer<typeof ProductSchemaEntity>[]>> {
     const { limit = 10, page = 0, ...rest } = filter;
+
     try {
+      const query = this.productModel
+        .find(rest)
+        .populate('owner')
+        .skip(page * limit)
+        .limit(limit + 1);
+      if (userId) {
+        query.find({
+          owner: userId,
+        });
+      }
       const [data, total] = await Promise.all([
-        this.productModel
-          .find(rest)
-          .populate('owner')
-          .skip(page * limit)
-          .limit(limit + 1),
-        this.productModel.countDocuments(rest),
+        query,
+        this.productModel.countDocuments({ ...rest, owner: userId }),
       ]);
 
       const hasNextPage = data.length > limit;
@@ -138,5 +151,12 @@ export class ProductService {
     } catch (e) {
       throw new InternalServerErrorException(e.message);
     }
+  }
+  async validate(productId: Types.ObjectId) {
+    const product = await this.findOne(productId);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    return product;
   }
 }
