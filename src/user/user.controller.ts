@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Param,
   Put,
@@ -7,9 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
+import { CreateZodApiDtoSchema, PostApiResponseSchema } from 'src/app.entity';
 import { RequestWithUser } from 'src/types/request';
-import { z } from 'zod';
-import { UserSchemaEntity } from './user.entity';
+import { UpdateUserDto } from './user.dto';
+import { UserSchemaEntity, UserSchemaEntityType } from './user.entity';
 import { AuthGuard } from './user.guard';
 import { UserService } from './user.service';
 @Controller('users')
@@ -18,14 +20,19 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Put(':userName')
-  @ZodSerializerDto(UserSchemaEntity)
+  @ZodSerializerDto(CreateZodApiDtoSchema(UserSchemaEntity))
   async updateUser(
     @Param() params: { userName: string },
-    @Req() req: RequestWithUser
-  ): Promise<z.infer<typeof UserSchemaEntity>> {
+    @Req() req: RequestWithUser,
+    @Body() updateUserDto: UpdateUserDto
+  ): Promise<PostApiResponseSchema<UserSchemaEntityType>> {
     if (req.user.userName !== params.userName) {
       throw new UnauthorizedException();
     }
-    return await this.userService.find(params.userName);
+
+    return {
+      data: await this.userService.update(params.userName, updateUserDto),
+      message: 'User has been updated',
+    };
   }
 }

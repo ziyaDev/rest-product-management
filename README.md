@@ -63,7 +63,6 @@ The Apis are exposed with `/api` prefix and all requests and responses are valid
 To register a user, you need to send a `POST` request to the `/auth/register` endpoint with the following body:
 ```json
 {
-  "userName": "user1",
   "firstName": "user1",
   "lastName": "user1",
   "password": "password"

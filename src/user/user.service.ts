@@ -3,24 +3,20 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/user.schema';
 import { z } from 'zod';
-import { UpdateUserDto } from './user.dto';
-import { UserSchemaEntity } from './user.entity';
+import { UpdateUserSchemaType } from './user.dto';
+import { UserSchemaEntity, UserSchemaEntityType } from './user.entity';
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private jwtService: JwtService
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async update(
     userName: string,
-    updateUserDto: z.infer<typeof UpdateUserDto>
-  ): Promise<z.infer<typeof UserSchemaEntity>> {
+    updateUserDto: UpdateUserSchemaType
+  ): Promise<UserSchemaEntityType> {
     const user = await this.userModel.findOne({
       userName,
     });

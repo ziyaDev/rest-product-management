@@ -18,3 +18,5 @@ export const UserLoginSchemaEntity = z.object({
     // This JWT validator has been created by devin :D https://github.com/colinhacks/zod/commit/b68c05fea12d8060000aa06abc1e95b08f061378
     .jwt(),
 });
+
+export type UserSchemaEntityType = z.infer<typeof UserSchemaEntity>;
