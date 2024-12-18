@@ -27,6 +27,7 @@ import { WithPagination } from 'src/filter/filter.interface';
 import { CreateWithPaginationSchema } from 'src/filter/filter.dto';
 import { Types } from 'mongoose';
 
+@UseGuards(AuthGuard)
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
@@ -39,7 +40,6 @@ export class ProductController {
     return await this.productService.findAll(productFilter);
   }
 
-  @UseGuards(AuthGuard)
   @Get(':userId')
   @ZodSerializerDto(CreateWithPaginationSchema(z.array(ProductSchemaEntity)))
   async findAllWithOwner(
@@ -53,7 +53,6 @@ export class ProductController {
     return await this.productService.findAll(productFilter, userId);
   }
 
-  @UseGuards(AuthGuard)
   @Post()
   @ZodSerializerDto(CreateZodApiDtoSchema(ProductSchemaEntity))
   async create(
@@ -65,7 +64,7 @@ export class ProductController {
       message: 'Product Created',
     };
   }
-  @UseGuards(AuthGuard)
+
   @Put(':productId')
   @ZodSerializerDto(CreateZodApiDtoSchema(ProductSchemaEntity))
   async update(
