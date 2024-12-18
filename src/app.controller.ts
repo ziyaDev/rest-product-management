@@ -6,7 +6,11 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get('/credit-cards')
-  getHello() {
+  getCreditCards() {
     return this.appService.getCreditCards();
+  }
+  @Get()
+  getHello() {
+    return 'Hello world!';
   }
 }
