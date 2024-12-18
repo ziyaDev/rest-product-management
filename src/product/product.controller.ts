@@ -13,19 +13,18 @@ import {
 } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { CreateZodApiDtoSchema, PostApiResponseSchema } from 'src/app.entity';
-import { AuthGuard } from 'src/user/user.guard';
-import { ProductSchemaEntity, ProductSchemaEntityType } from './product.entity';
-import { ProductService } from './product.service';
+import { CreateWithPaginationSchema } from 'src/filter/filter.dto';
+import { WithPagination } from 'src/filter/filter.interface';
 import { RequestWithUser } from 'src/types/request';
+import { AuthGuard } from 'src/user/user.guard';
+import { z } from 'zod';
 import {
   CreateProductDto,
   FilterProductDto,
   UpdateProductDto,
 } from './product.dto';
-import { z } from 'zod';
-import { WithPagination } from 'src/filter/filter.interface';
-import { CreateWithPaginationSchema } from 'src/filter/filter.dto';
-import { Types } from 'mongoose';
+import { ProductSchemaEntity, ProductSchemaEntityType } from './product.entity';
+import { ProductService } from './product.service';
 
 @UseGuards(AuthGuard)
 @Controller('products')

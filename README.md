@@ -1,39 +1,47 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nestjs-rest-api
+## Introduction
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is a simple rest api for product management. It is built using nestjs and typescript. All APIs are fully validated using Zod schemas for both request inputs and response outputs, ensuring type safety and data validation throughout the entire application flow.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Techstack
 
-## Description
+- [Nestjs](https://nestjs.com/) framework
+- [Typescript](https://www.typescriptlang.org/) language
+- [Mongodb](https://www.mongodb.com/) database
+- [Mongoose](https://mongoosejs.com/) ORM
+- [Render](https://render.com/) Deployment
+- [Docker](https://www.docker.com/) Containerization
+- [Zod](https://www.npmjs.com/package/zod) Validation
+- [Biome](https://biomejs.dev/) Linting and formatting
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Project setup
+## Local development
+
+To develop the service locally you need:
+
+- Node 18+
+- MongoDB up and running
+
+Once you have all the dependencies in place, you can launch:
+
+# Installation
 
 ```bash
 $ pnpm install
 ```
+This command will install the dependencies. Now you can create your local copy of the `env` variables needed for launching the application.
 
-## Compile and run the project
+```shell
+cp ./.env.example ./.env.development.local // You can change `env` file or path on ConfigModule on AppModule
+```
+# Running the app
+Once you have all your dependency in place, you can launch:
+```shell
+pnpm start:dev
+```
+and you will have the service exposed on your machine on the port `3000` or the one you have set on `PORT` variable.
 
+Also, you can run the app in deferent mode using:
 ```bash
 # development
 $ pnpm run start
@@ -44,42 +52,92 @@ $ pnpm run start:dev
 # production mode
 $ pnpm run start:prod
 ```
-
-## Run tests
-
+- You can also run the app using docker
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+$ docker-compose up
 ```
+## Usage
+The Apis are exposed with /api prefix and all requests and responses are validated using Zod schemas. For example, to get all the products, you need to send a `GET` request to the `/api/products` endpoint.
 
-## Resources
+### Registering a user
+To register a user, you need to send a `POST` request to the `/auth/register` endpoint with the following body:
+```json
+{
+  "userName": "user1",
+  "firstName": "user1",
+  "lastName": "user1",
+  "password": "password"
+}
+```
+### Authenticating a user
+To authenticate a user, you need to send a `POST` request to the `/auth/login` endpoint with the following body:
+```json
+{
+  "email": "user1@email.com",
+  "password": "password"
+}
+```
+### Updating a user **Admin only**
+To update a user, you need to send a `PUT` request to the `/auth/users/:userName` endpoint with the following body:
+```json
+{
+    "userName": "user1",
+    "firstName": "user1",
+    "lastName": "user1",
+    "password": "password"
+}
+```
+### Getting all the products- **Authenticated only**
+To get all the products, you need to send a `GET` request to the `/products` endpoint.
+### Getting only your products **Admin only**
+To get a all your products, you need to send a `GET` request to the `/products/:userName` endpoint.
+### Creating a product **Authenticated only**
+To create a product, you need to send a `POST` request to the `/products` endpoint with the following body:
+```json
+{
+  "title": "product1",
+  "price": 100,
+  "description": "product1 description"
+  "quantity": 10,
+  "category": "Electronics",
+  "options": [{"option":"Size", "values":["XL"]},{"option":"Color", "values":["Blue"]}]
+}
+```
+### Updating a product **Admin only**
+To update a product, you need to send a `PUT` request to the `/products/:productId` endpoint with the following body:
+```json
+{
+  "title": "product1",
+  "price": 100,
+  "description": "product1 description",
+  "quantity": 10,
+  "category": "Electronics",
+  "options": [{"option":"Size", "values":["XL"]},{"option":"Color", "values":["Blue"]}]
+}
+```
+### Deleting a product **Admin only**
+To delete a product, you need to send a `DELETE` request to the `/products/:productId` endpoint.
+### Create a purchase **Authenticated only**
+To create a purchase, you need to send a `POST` request to the `/purchases` endpoint with the following body:
+```json
+{
+  "productId": "5f8d9f0a0b0e0c0d0e0f",
+  "quantity": 10,
+  "selectedOptions": [{"option":"Size", "value":"XL"},{"option":"Color", "value":"Blue"}]
+}
+```
+Note that `selectedOptions` field the `option` and `value` fields should be defined on the product options.
 
-Check out a few resources that may come in handy when working with NestJS:
+### Getting all the purchases **Admin only**
+To get all the purchases that belongs to the admin products, you need to send a `GET` request to the `/purchases` endpoint.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Getting all the purchases stats **Admin only**
+To get all the purchases stats, you need to send a `GET` request to the `/purchases/stats` endpoint.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Getting Filtered credit cards
+To get it, you need to send a `GET` request to the `/credit-cards` endpoint.
+(This endpoint fetches all the credit cards from the random api using axios)
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
