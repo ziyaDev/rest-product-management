@@ -32,7 +32,7 @@ $ pnpm install
 This command will install the dependencies. Now you can create your local copy of the `env` variables needed for launching the application.
 
 ```shell
-cp ./.env.example ./.env.development.local // You can change `env` file or path on ConfigModule on AppModule
+cp ./.env.example ./.env.development.local # You can change `env` file or path on ConfigModule on AppModule
 ```
 # Running the app
 Once you have all your dependency in place, you can launch:
@@ -57,7 +57,7 @@ $ pnpm run start:prod
 $ docker-compose up
 ```
 ## Usage
-The Apis are exposed with /api prefix and all requests and responses are validated using Zod schemas. For example, to get all the products, you need to send a `GET` request to the `/api/products` endpoint.
+The Apis are exposed with `/api` prefix and all requests and responses are validated using Zod schemas. For example, to get all the products, you need to send a `GET` request to the `/api/products` endpoint.
 
 ### Registering a user
 To register a user, you need to send a `POST` request to the `/auth/register` endpoint with the following body:
@@ -73,7 +73,7 @@ To register a user, you need to send a `POST` request to the `/auth/register` en
 To authenticate a user, you need to send a `POST` request to the `/auth/login` endpoint with the following body:
 ```json
 {
-  "email": "user1@email.com",
+  "userName": "user1@email.com",
   "password": "password"
 }
 ```
