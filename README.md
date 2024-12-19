@@ -64,6 +64,7 @@ To register a user, you need to send a `POST` request to the `/auth/register` en
 ```json
 {
   "firstName": "user1",
+  "userName": "myUniqueUsername",
   "lastName": "user1",
   "password": "password"
 }
@@ -72,7 +73,7 @@ To register a user, you need to send a `POST` request to the `/auth/register` en
 To authenticate a user, you need to send a `POST` request to the `/auth/login` endpoint with the following body:
 ```json
 {
-  "userName": "user1@email.com",
+  "userName": "myUniqueUsername",
   "password": "password"
 }
 ```
@@ -80,7 +81,6 @@ To authenticate a user, you need to send a `POST` request to the `/auth/login` e
 To update a user, you need to send a `PUT` request to the `/auth/users/:userName` endpoint with the following body:
 ```json
 {
-    "userName": "user1",
     "firstName": "user1",
     "lastName": "user1",
     "password": "password"
@@ -88,6 +88,7 @@ To update a user, you need to send a `PUT` request to the `/auth/users/:userName
 ```
 ### Getting all the products- **Authenticated only**
 To get all the products, you need to send a `GET` request to the `/products` endpoint.
+
 ### Getting only your products **Admin only**
 To get a all your products, you need to send a `GET` request to the `/products/:userName` endpoint.
 ### Creating a product **Authenticated only**
@@ -96,7 +97,7 @@ To create a product, you need to send a `POST` request to the `/products` endpoi
 {
   "title": "product1",
   "price": 100,
-  "description": "product1 description"
+  "description": "product1 description",
   "quantity": 10,
   "category": "Electronics",
   "options": [{"option":"Size", "values":["XL"]},{"option":"Color", "values":["Blue"]}]
@@ -136,6 +137,42 @@ To get all the purchases stats, you need to send a `GET` request to the `/purcha
 ### Getting Filtered credit cards
 To get it, you need to send a `GET` request to the `/credit-cards` endpoint.
 (This endpoint fetches all the credit cards from the random api using axios)
+
+### Filtering and paginations
+
+You can filter and paginate the results using a dynamic query.
+- Paginations :
+ - `limit`: The number of items to return per page. Default is `10`.
+ - `page`: The page number to return. Default is `0`.
+ You get in return this object along with data:
+ ```json
+ "data": ...,
+ "pagination": {
+         "totalCount": 3, // total count of data after filtering
+         "pageSize": 1, // page size of limit you've set
+         "totalPages": 3, // how many pages there base on your pagination
+         "hasNextPage": true // Has next page ?
+     }
+ ```
+ - Filtering:
+ For filtering, you can create a dynamic query using the object fields with operators and values. For example, if you want to find products where the title contains "macbook" and the category is exactly "Electronics", with a limit of 1 item per page, you can use the following query:
+ ```url
+ example.com/api/products?title[$regex]=macbook&category=Electronics&limit=1&page
+ ```
+
+ For numeric fields like price, you can use comparison operators:
+ ```url
+ example.com/api/products?price[$gt]=100&price[$lt]=1000
+ ```
+
+ For exact string matches:
+ ```url
+ example.com/api/products?category=Electronics
+ ```
+
+ Note: You can use any MongoDB query operators ($gt, $lt, $gte, $lte, $regex, etc.) based on the field type - string operators for string fields and numeric operators for number fields.
+ and you can still use the $or and $and operators.
+
 
 ## License
 

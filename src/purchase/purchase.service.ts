@@ -58,21 +58,17 @@ export class PurchaseService {
     userId: string
   ): Promise<WithPagination<PurchaseSchemaEntityType[]>> {
     const { limit = 10, page = 0, ...rest } = filter;
+    const customefilter = { ...rest, ...(userId && { from: userId }) };
 
     try {
       const query = this.purchaseModel
-        .find({ ...rest, from: userId })
+        .find(customefilter)
         .populate(['owner', 'product'])
         .skip(page * limit)
         .limit(limit + 1);
 
-      const [data, total] = await Promise.all([
-        query,
-        this.purchaseModel.countDocuments({
-          ...rest,
-          from: userId,
-        }),
-      ]);
+      const queryCount = this.purchaseModel.countDocuments(customefilter);
+      const [data, total] = await Promise.all([query, queryCount]);
 
       const hasNextPage = data.length > limit;
       const items = hasNextPage ? data.slice(0, -1) : data;

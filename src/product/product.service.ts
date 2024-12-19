@@ -1,24 +1,22 @@
 import {
   BadRequestException,
-  Get,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { WithPagination } from 'src/filter/filter.interface';
 import { Product } from 'src/schemas/product.schema';
 import { User } from 'src/schemas/user.schema';
+import { UserService } from 'src/user/user.service';
 import { z } from 'zod';
 import {
   CreateProductSchema,
   FilterProductDto,
-  FilterProductSchema,
   UpdateProductSchema,
 } from './product.dto';
 import { ProductSchemaEntity } from './product.entity';
-import { WithPagination } from 'src/filter/filter.interface';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ProductService {
@@ -119,24 +117,18 @@ export class ProductService {
     userId?: string
   ): Promise<WithPagination<z.infer<typeof ProductSchemaEntity>[]>> {
     const { limit = 10, page = 0, ...rest } = filter;
+    const customefilter = { ...rest, ...(userId && { owner: userId }) };
 
     try {
       const query = this.productModel
-        .find(rest)
+        .find(customefilter)
         .populate('owner')
         .skip(page * limit)
         .limit(limit + 1);
-      if (userId) {
-        query.find({
-          owner: userId,
-        });
-      }
-      const [data, total] = await Promise.all([
-        query,
-        this.productModel.countDocuments({ ...rest, owner: userId }),
-      ]);
-
+      const countQuery = this.productModel.countDocuments(rest);
+      const [data, total] = await Promise.all([query, countQuery]);
       const hasNextPage = data.length > limit;
+
       const items = hasNextPage ? data.slice(0, -1) : data;
 
       return {
